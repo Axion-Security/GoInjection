@@ -12,7 +12,7 @@ import (
 
 func main() {
 
-	urls := []string{} // ToDo: Add File Upload
+	var urls []string // ToDo: Add File Upload
 
 	helper.ClearScreen()
 	helper.WriteLine("!", "GoInjection", true, false)
@@ -20,7 +20,7 @@ func main() {
 	helper.WriteLine("!", "https://github.com/Axion-Security/GoInjection", true, false)
 	helper.WriteLine(">", "URL: ", true, false)
 	var input string
-	fmt.Scanln(&input)
+	_, _ = fmt.Scanln(&input)
 	urls = append(urls, input)
 
 	for _, u := range urls {
