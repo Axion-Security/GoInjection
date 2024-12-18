@@ -10,6 +10,22 @@ This project is designed to perform SQL injection testing on various database sy
 - Count the occurrences of words in the response to help identify the database.
 
 ## Testing
+```sql
+USE sql_injection_lab;
+
+CREATE TABLE IF NOT EXISTS products (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    price DECIMAL(10, 2) NOT NULL
+);
+
+INSERT INTO products (name, price) VALUES
+('Laptop', 799.99),
+('Smartphone', 599.99),
+('Tablet', 399.99),
+('Headphones', 49.99),
+('Smartwatch', 199.99);
+```
 The project includes a test site that is located in `SQL_Injection_Lab.py` file.
 
 ## ToDo
