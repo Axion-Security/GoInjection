@@ -12,9 +12,7 @@ func Cloudflare(headers http.Header, response string) bool {
 	}
 
 	CfRayHeader := headers.Get("cf-ray")
-	if CfRayHeader != "" {
-		return true
-	}
+	return CfRayHeader != ""
 
 	return false
 }

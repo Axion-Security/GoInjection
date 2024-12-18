@@ -3,7 +3,6 @@ package helper
 import (
 	"github.com/corpix/uarand" // Random User-Agent
 	"io"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"net/url"
@@ -40,7 +39,7 @@ func SendRequest(urlStr string) (string, int) {
 		return "", resp.StatusCode
 	}
 
-	body, err := ioutil.ReadAll(resp.Body)
+	body, err := io.ReadAll(resp.Body)
 	LogError(err)
 
 	return string(body), resp.StatusCode
@@ -59,12 +58,4 @@ func URLEncodeQuery(input string) string {
 	query := urlStr.Query()
 	urlStr.RawQuery = query.Encode()
 	return urlStr.String()
-}
-
-func getDomain(urlStr string) string {
-	parsedURL, err := url.Parse(urlStr)
-	if err != nil {
-		return ""
-	}
-	return parsedURL.Hostname()
 }
