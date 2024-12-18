@@ -53,9 +53,13 @@ func WriteLine(option, value string, newLine, padding bool) {
 	fmt.Print(optionColor)
 	fmt.Print(gray("] "))
 
-	if newLine {
-		fmt.Println(white(value))
-	} else {
+	if option == ">" {
 		fmt.Print(white(value))
+	} else {
+		if newLine {
+			fmt.Println(white(value))
+		} else {
+			fmt.Print(white(value))
+		}
 	}
 }
