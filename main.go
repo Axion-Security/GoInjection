@@ -11,8 +11,9 @@ import (
 )
 
 func main() {
-
-	var urls []string // ToDo: Add File Upload
+	// ToDo: Add Config System (using https://github.com/spf13/viper)
+	// ToDo: Add File Input
+	var urls []string
 
 	helper.ClearScreen()
 	helper.WriteLine("!", "GoInjection", true, false)
@@ -46,7 +47,7 @@ func main() {
 				}
 
 				helper.WriteLine("?", "Checking for DBMS fingerprint...", true, false)
-				structs.TargetDBMS = modules.FingerprintDB(cleanedURL, "union") // ToDo: Use Config System (viper)
+				structs.TargetDBMS = modules.FingerprintDB(cleanedURL, "union")
 				helper.WriteLine("!", "Database type detected: "+structs.TargetDBMS, true, true)
 
 				structs.TargetSyntax = injectionHelper.Interpreter(structs.TargetDBMS)
