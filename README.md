@@ -5,9 +5,13 @@
 This project is designed to perform SQL injection testing on various database systems. It includes functions to determine the number of columns in a database table and to identify the database type based on the response to SQL injection queries.
 
 ## Features
-- Determine the number of columns in a database table using SQL injection.
-- Identify the database type (MySQL, PostgreSQL, MsSQL, SQLite) based on SQL injection responses.
-- Count the occurrences of words in the response to help identify the database.
+- SQL Injection Testing: Perform SQL injection testing on various database systems.
+- Column Count Detection: Determine the number of columns in a database table using SQL injection.
+- Database Type Identification: Identify the database type (MySQL, PostgreSQL, MsSQL, SQLite) based on SQL injection responses.
+- Word Count Analysis: Count the occurrences of words in the response to help identify the database.
+- WAF Detection: Detect the presence of Web Application Firewalls (WAF) by analyzing HTTP responses and status codes.
+- WAF Identification: Identify specific WAFs (e.g., Cloudflare, Cloudfront, Akamai, Sucuri) based on HTTP headers and response content.
+- Multi-DBMS Support: Support for multiple database management systems (DBMS) including MySQL, PostgreSQL, MsSQL, and SQLite.
 
 ## Testing
 ```sql
