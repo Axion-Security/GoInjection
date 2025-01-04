@@ -14,6 +14,10 @@ This project is designed to perform SQL injection testing on various database sy
 - Multi-DBMS Support: Support for multiple database management systems (DBMS) including MySQL, PostgreSQL, MsSQL, and SQLite.
 
 ## Testing
+```py
+pip install flask
+pip install mysql-connector-python
+```
 ```sql
 USE sql_injection_lab;
 
