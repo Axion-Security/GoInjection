@@ -4,8 +4,9 @@ import (
 	"GoInjection/backend/helper"
 	"GoInjection/backend/query"
 	"GoInjection/backend/structs"
+	"crypto/rand"
 	"fmt"
-	"math/rand"
+	"math/big"
 	"strings"
 )
 
@@ -58,8 +59,11 @@ func BooleanBasedInjection(url string) (bool, string) {
 				payloadStr := payload.([]interface{})[0].(string)
 				//expectedBool := payload.([]interface{})[1].(bool)
 
-				payload = strings.ReplaceAll(payloadStr, "§", fmt.Sprintf("%08d", rand.Int63n(1e8)))
-				payload = strings.ReplaceAll(payloadStr, "$", fmt.Sprintf("%08d", rand.Int63n(1e8)))
+				randomNum, _ := rand.Int(rand.Reader, big.NewInt(1e8))
+				payload := strings.ReplaceAll(payloadStr, "§", fmt.Sprintf("%08d", randomNum))
+
+				randomNum, _ = rand.Int(rand.Reader, big.NewInt(1e8))
+				payload = strings.ReplaceAll(payload, "$", fmt.Sprintf("%08d", randomNum))
 
 				payloads, status := q.Build(payloadStr)
 				if status != "Success" {

@@ -5,9 +5,10 @@ import (
 	helper2 "GoInjection/backend/injections/helper"
 	"GoInjection/backend/query"
 	"GoInjection/backend/structs"
+	"crypto/rand"
 	"encoding/hex"
 	"fmt"
-	"math/rand"
+	"math/big"
 	"strings"
 )
 
@@ -36,7 +37,8 @@ func UnionInjection(url string) (bool, string) {
 		if payloads, ok := unionPayloads[structs.TargetSyntax]; ok {
 			for _, payload := range payloads {
 
-				var identifierString = fmt.Sprintf("%08d", rand.Int63n(1e8))
+				randomNum, _ := rand.Int(rand.Reader, big.NewInt(1e8))
+				var identifierString = strings.ReplaceAll(payload, "$", fmt.Sprintf("%08d", randomNum))
 				var identifierBytes = hex.EncodeToString([]byte(identifierString))
 
 				editor := query.Editor{}
