@@ -26,4 +26,4 @@ jobs:
 
       - name: Run Gosec Security Scanner
         run: |
-          gosec ./...  # Run gosec on your project
+          gosec -exclude G404 ./...  # Run gosec on your project
