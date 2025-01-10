@@ -1,0 +1,22 @@
+{
+    "$schema": "https://wails.io/schemas/config.v2.json",
+    "name": "GoInjection",
+    "outputfilename": "GoInjection",
+    "frontend:install": "npm install",
+    "frontend:build": "npm run build",
+    "frontend:dev": "echo dev",
+    "frontend:dev:build": "echo dev",
+    "frontend:dev:watcher": "npm run dev",
+    "frontend:dev:serverUrl": "http://localhost:3000",
+    "author": {
+        "name": "9dl",
+        "email": "80607793+9dl@users.noreply.github.com"
+    },
+    "info": {
+        "companyName": "GoInjection",
+        "productName": "GoInjection",
+        "productVersion": "1.0.0",
+        "copyright": "Copyright by Axion-Security",
+        "comments": "github.com/Axion-Security"
+    }
+}

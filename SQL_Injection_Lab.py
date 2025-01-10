@@ -1,28 +1,17 @@
 from flask import Flask, request, render_template_string
-import mysql.connector
-import re
+import pymysql
 
 app = Flask(__name__)
 
 def get_db_connection():
-    return mysql.connector.connect(
+    """Establish and return a database connection using PyMySQL."""
+    return pymysql.connect(
         host="localhost",
         user="root",
         password="",
-        database="sql_injection_lab"
+        database="sql_injection_lab",
+        cursorclass=pymysql.cursors.DictCursor
     )
-
-def waf_filter(input_data):
-    patterns = [
-        r"('|\-\-|\;|--|\bUNION\b|\bSELECT\b|\bINSERT\b|\bDROP\b|\bUPDATE\b)",
-        r"(\bOR\s1=1\b)",
-    ]
-
-    for pattern in patterns:
-        if re.search(pattern, input_data, re.IGNORECASE):
-            return False
-
-    return True
 
 @app.route('/')
 def index():
@@ -36,32 +25,6 @@ def index():
     </form>
     ''')
 
-@app.route('/waf_product', methods=['GET'])
-def waf_product():
-    product_id = request.args.get('id')
-
-    if not waf_filter(product_id):
-        return "<h2>Potential SQL Injection attempt blocked by WAF</h2>"
-
-    conn = get_db_connection()
-    cursor = conn.cursor()
-
-    query = f"SELECT * FROM products WHERE id = '{product_id}'"
-    try:
-        cursor.execute(query)
-        product = cursor.fetchone()
-        conn.close()
-        if product:
-            return f"<h2>Product Details</h2><p>ID: {product[0]}</p><p>Name: {product[1]}</p><p>Price: {product[2]}</p>"
-        else:
-            return "<h2>No product found</h2>"
-    except mysql.connector.Error as err:
-        conn.close()
-        return f"<h2>SQL Error: {err}</h2>"
-    except Exception as e:
-        conn.close()
-        return f"<h2>Error: {str(e)}</h2>"
-
 @app.route('/product', methods=['GET'])
 def product():
     product_id = request.args.get('id')
@@ -69,21 +32,23 @@ def product():
     conn = get_db_connection()
     cursor = conn.cursor()
 
-    query = f"SELECT * FROM products WHERE id = '{product_id}'"
+    # Vulnerable query (using string formatting directly)
+    query = "SELECT * FROM products WHERE id = '%s'" % product_id  # SQL Injection vulnerability
     try:
         cursor.execute(query)
         product = cursor.fetchone()
         conn.close()
+
         if product:
-            return f"<h2>Product Details</h2><p>ID: {product[0]}</p><p>Name: {product[1]}</p><p>Price: {product[2]}</p>"
+            return f"<h2>Product Details</h2><p>ID: {product['id']}</p><p>Name: {product['name']}</p><p>Price: {product['price']}</p>"
         else:
             return "<h2>No product found</h2>"
-    except mysql.connector.Error as err:
+    except pymysql.Error as err:
         conn.close()
-        return f"<h2>SQL Error: {err}</h2>"
+        return f"<h2>SQL Error:</h2><pre>{err}</pre>"
     except Exception as e:
         conn.close()
-        return f"<h2>Error: {str(e)}</h2>"
+        return f"<h2>Unexpected Error:</h2><pre>{str(e)}</pre>"
 
 if __name__ == '__main__':
     app.run(debug=True)

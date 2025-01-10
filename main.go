@@ -1,72 +1,95 @@
 package main
 
 import (
-	"GoInjection/helper"
-	"GoInjection/injections"
-	injectionHelper "GoInjection/injections/helper"
-	"GoInjection/modules"
-	"GoInjection/structs"
-	"fmt"
-	"strings"
+	"embed"
+	"github.com/leaanthony/adfer"
+	"log"
+
+	"github.com/wailsapp/wails/v2"
+	"github.com/wailsapp/wails/v2/pkg/logger"
+	"github.com/wailsapp/wails/v2/pkg/options"
+	"github.com/wailsapp/wails/v2/pkg/options/assetserver"
+	"github.com/wailsapp/wails/v2/pkg/options/mac"
+	"github.com/wailsapp/wails/v2/pkg/options/windows"
 )
 
+//go:embed all:frontend/dist
+var assets embed.FS
+
+//go:embed build/appicon.png
+var icon []byte
+
 func main() {
-	// ToDo: Add Config System (using https://github.com/spf13/viper)
-	// ToDo: Add File Input
-	var urls []string
+	ph := adfer.New(adfer.Options{
+		DumpToFile:        true,
+		IncludeSystemInfo: true,
+		WipeFile:          true,
+		FilePath:          "crash_reports.json",
+	})
+	defer ph.Recover()
 
-	helper.ClearScreen()
-	helper.WriteLine("!", "GoInjection", true, false)
-	helper.WriteLine("!", "Developed By Fourier for Axion Security", true, false)
-	helper.WriteLine("!", "https://github.com/Axion-Security/GoInjection", true, false)
-	helper.WriteLine(">", "URL: ", true, false)
-	var input string
-	_, _ = fmt.Scanln(&input)
-	urls = append(urls, input)
+	app := NewApp()
 
-	for _, u := range urls {
-		cleanedURLs, err := helper.GetUrls(u)
-		if err != nil {
-			fmt.Println("Error:", err)
-		} else {
-			for _, cleanedURL := range cleanedURLs {
-				helper.ClearScreen()
-				structs.TargetURL = cleanedURL
-				helper.WriteLine("?", "Testing URL: "+strings.Replace(cleanedURL, helper.PayloadReplaceString, "", -1), true, false)
+	err := wails.Run(&options.App{
+		Title:  "GoInjection",
+		Width:  855,
+		Height: 570,
 
-				helper.WriteLine("?", "Testing if target is using WAF", true, false)
-				var isUsingWAF, wafDetection = modules.DetectWAF(cleanedURL)
-				if isUsingWAF {
-					helper.WriteLine("!", "Target is using WAF", true, false)
-					helper.WriteLine("!", "WAF Detection: "+wafDetection, true, true)
-					helper.WriteLine("-", "Press any Key to Continue.", true, true)
-					helper.ReadKey()
-					break
-				} else {
-					helper.WriteLine("!", "Target is not using WAF", true, true)
-				}
+		MinWidth:  855,
+		MinHeight: 570,
 
-				helper.WriteLine("?", "Checking for DBMS fingerprint...", true, false)
-				structs.TargetDBMS = modules.FingerprintDB(cleanedURL, "union")
-				helper.WriteLine("!", "Database type detected: "+structs.TargetDBMS, true, true)
+		MaxWidth:  855,
+		MaxHeight: 570,
 
-				structs.TargetSyntax = injectionHelper.Interpreter(structs.TargetDBMS)
-				helper.WriteLine("?", "Determining the syntax for the injection...", true, false)
-				helper.WriteLine("!", "Syntax: "+structs.TargetSyntax, true, true)
+		DisableResize:     true,
+		Fullscreen:        false,
+		Frameless:         true,
+		StartHidden:       false,
+		HideWindowOnClose: false,
 
-				helper.WriteLine("?", "Testing for Union Injection.", true, false)
-				injections.UnionInjection(cleanedURL)
-				_, structs.TargetColumns = injectionHelper.GetColumnCount(cleanedURL)
-				helper.WriteLine("!", "Columns: "+fmt.Sprintf("%d", structs.TargetColumns), true, true)
-				_, structs.TargetDatabaseName = injectionHelper.GetDatabase(cleanedURL, structs.TargetColumns)
-				helper.WriteLine("!", "Database: "+structs.TargetDatabaseName, true, true)
+		BackgroundColour: &options.RGBA{R: 255, G: 255, B: 255, A: 255},
+		AssetServer: &assetserver.Options{
+			Assets: assets,
+		},
+		Menu:             nil,
+		Logger:           nil,
+		LogLevel:         logger.ERROR,
+		OnStartup:        app.startup,
+		WindowStartState: options.Normal,
+		Bind: []interface{}{
+			app,
+		},
+		// Windows platform specific options
+		Windows: &windows.Options{
+			WebviewIsTransparent: false,
+			WindowIsTranslucent:  false,
+			DisableWindowIcon:    false,
+			// DisableFramelessWindowDecorations: false,
+			WebviewUserDataPath: "",
+			ZoomFactor:          1.0,
+		},
+		// Mac platform specific options
+		Mac: &mac.Options{
+			TitleBar: &mac.TitleBar{
+				TitlebarAppearsTransparent: true,
+				HideTitle:                  false,
+				HideTitleBar:               false,
+				FullSizeContent:            false,
+				UseToolbar:                 false,
+				HideToolbarSeparator:       true,
+			},
+			Appearance:           mac.NSAppearanceNameDarkAqua,
+			WebviewIsTransparent: true,
+			WindowIsTranslucent:  true,
+			About: &mac.AboutInfo{
+				Title:   "GoInjection",
+				Message: "",
+				Icon:    icon,
+			},
+		},
+	})
 
-				helper.WriteLine("+", "Scanning is complete.", true, false)
-				helper.WriteLine("-", "Press any Key to Continue.", true, false)
-				helper.ReadKey()
-			}
-		}
+	if err != nil {
+		log.Fatal(err)
 	}
-
-	helper.WriteLine("!", "Exiting...", true, false)
 }
